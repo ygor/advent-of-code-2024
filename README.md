@@ -1,7 +1,7 @@
 ### Advent of Code 2024
 ---
 
-My solutions in F# to the [Advent of Code 2023](https://adventofcode.com/) puzzles.
+My solutions in Python to the [Advent of Code 2024](https://adventofcode.com/) puzzles.
 
 
 
