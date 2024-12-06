@@ -31,11 +31,12 @@ def is_mas(line: List[str]) -> bool:
 
 padded = np.pad(matrix, pad_width=1, mode="constant", constant_values=0)
 
-count = sum(
-    is_mas([padded[x - 1, y - 1], padded[x, y], padded[x + 1, y + 1]])
-    and is_mas([padded[x - 1, y + 1], padded[x, y], padded[x + 1, y - 1]])
-    for x in range(1, rows)
-    for y in range(1, cols)
+print(
+    "Part 2:",
+    sum(
+        is_mas([padded[x - 1, y - 1], padded[x, y], padded[x + 1, y + 1]])
+        and is_mas([padded[x - 1, y + 1], padded[x, y], padded[x + 1, y - 1]])
+        for x in range(1, rows)
+        for y in range(1, cols)
+    ),
 )
-
-print("Part 2:", count)
