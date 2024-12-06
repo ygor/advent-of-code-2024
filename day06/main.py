@@ -19,8 +19,7 @@ def move(x, y, direction: str):
 
 
 direction = "^"
-coords = np.where(lab == direction)
-y, x = coords[0][0], coords[1][0]
+y, x = tuple(np.argwhere(lab == direction)[0])
 visited = {(x, y)}
 
 while x in range(cols) and y in range(rows):
