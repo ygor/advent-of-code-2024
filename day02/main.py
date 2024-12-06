@@ -2,7 +2,7 @@ from itertools import pairwise
 from pathlib import Path
 
 reports = [
-    [int(x) for x in line.split()]
+    list(map(int, line.split()))
     for line in Path("input.txt").read_text().splitlines()
 ]
 
