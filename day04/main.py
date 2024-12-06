@@ -1,7 +1,6 @@
 import numpy as np
 from pathlib import Path
 from typing import List
-import re
 
 lines = Path("input.txt").read_text().splitlines()
 matrix: np.ndarray = np.array([list(line) for line in lines])
