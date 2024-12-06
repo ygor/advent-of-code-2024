@@ -11,9 +11,7 @@ def is_safe(report):
 
 
 print("Part 1:", sum(is_safe(report) for report in reports))
-print(
-    "Part 2:",
-    sum(
-        is_safe(report)
-        or any(is_safe(report[:i] + report[i + 1 :]) for i in range(0, len(report)))
-        for report in reports))
+print("Part 2:", sum(
+    is_safe(report)
+    or any(is_safe(report[:i] + report[i + 1 :]) for i in range(0, len(report)))
+    for report in reports))
