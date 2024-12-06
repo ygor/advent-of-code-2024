@@ -7,10 +7,17 @@ def run(memory):
     matches = re.findall(mul_pattern, memory)
     return sum(int(a) * int(b) for a, b in matches)
 
+
 memory = Path("input.txt").read_text()
 print("Part 1:", run(memory))
 
 do_pattern = r"do\(\)"
 dont_pattern = r"don\'t\(\)"
 
-print("Part 2:", sum(run(re.split(dont_pattern, segment)[0]) for segment in re.split(do_pattern, memory)))
+print(
+    "Part 2:",
+    sum(
+        run(re.split(dont_pattern, segment)[0])
+        for segment in re.split(do_pattern, memory)
+    ),
+)
