@@ -9,7 +9,7 @@ matrix: np.ndarray = np.array([list(line) for line in lines])
 
 def count_xmas(lines: List[List[str]]) -> int:
     return sum(
-        len(re.findall("XMAS", "".join(line + line[::-1])))
+        "".join(line + line[::-1]).count("XMAS")
         for line in lines
     )
 
