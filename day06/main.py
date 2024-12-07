@@ -2,13 +2,11 @@ from pathlib import Path
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 
-# Constants
 DIRECTIONS = {">": (1, 0), "<": (-1, 0), "v": (0, 1), "^": (0, -1)}
 TURNS = {"^": ">", ">": "v", "v": "<", "<": "^"}
 OBSTRUCTION = "#"
 
 
-# Read input and initialize the area
 def load_area(file_path: str) -> np.ndarray:
     lines = Path(file_path).read_text().splitlines()
     return np.array([list(line) for line in lines])
