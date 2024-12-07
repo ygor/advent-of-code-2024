@@ -18,17 +18,17 @@ def next_pos(x: int, y: int, direction: str) -> tuple[int, int]:
     return x + dx, y + dy
 
 
-def walk(area: np.ndarray, x: int, y: int, direction: str) -> tuple[int, int, str]:
+def move(area: np.ndarray, x: int, y: int, direction: str) -> tuple[int, int, str]:
     next_x, next_y = next_pos(x, y, direction)
 
     if (
-        not (0 <= next_x < area.shape[1] and 0 <= next_y < area.shape[0])
+        next_x not in range(area.shape[1])
+        or next_y not in range(area.shape[0])
         or area[next_y, next_x] != OBSTRUCTION
     ):
         return next_x, next_y, direction
     else:
-        direction = TURNS[direction]
-        return *next_pos(x, y, direction), direction
+        return x, y, TURNS[direction]
 
 
 def leave_area(
@@ -37,7 +37,7 @@ def leave_area(
     visited = set()
     while x in range(area.shape[1]) and y in range(area.shape[0]):
         visited.add((x, y))
-        x, y, direction = walk(area, x, y, direction)
+        x, y, direction = move(area, x, y, direction)
 
     return visited
 
@@ -47,16 +47,14 @@ print("Part 1:", len(leave_area(area, start_x, start_y, start_direction)))
 
 def leave_or_loop_area(area: np.ndarray, x: int, y: int, direction: str) -> bool:
     visited = set()
-    loop = False
-
     while x in range(area.shape[1]) and y in range(area.shape[0]):
-        if (x, y, direction) in visited:
-            loop = True
-            break
-        visited.add((x, y, direction))
-        x, y, direction = walk(area, x, y, direction)
-
-    return loop
+        state = (x, y, direction)
+        if state in visited:
+            print(f"Loop detected at {state}")
+            return True
+        visited.add(state)
+        x, y, direction = move(area, x, y, direction)
+    return False
 
 
 def obstruct(area: np.ndarray, x: int, y: int) -> np.ndarray:
@@ -66,17 +64,21 @@ def obstruct(area: np.ndarray, x: int, y: int) -> np.ndarray:
     return area
 
 
-def count_loops(area: np.ndarray, x: int, y: int, direction: str) -> int:
-    positions = [(z, w) for z in range(area.shape[1]) for w in range(area.shape[0])]
-    with ThreadPoolExecutor() as executor:
-        results = executor.map(
-            lambda pos: leave_or_loop_area(
-                obstruct(area, pos[0], pos[1]), x, y, direction
-            ),
-            positions,
+def count_loops(area: np.ndarray, start_x: int, start_Y: int, direction: str) -> int:
+    valid_positions = [
+        (a, b)
+        for b in range(area.shape[0])
+        for a in range(area.shape[1])
+        if area[b, a] != OBSTRUCTION and (a, b) != (start_x, start_y)
+    ]
+
+    def is_loop_position(pos):
+        return leave_or_loop_area(
+            obstruct(area, pos[0], pos[1]), start_x, start_y, direction
         )
 
-    return sum(results)
+    with ThreadPoolExecutor() as executor:
+        return sum(executor.map(is_loop_position, valid_positions))
 
 
 print("Part 2:", count_loops(area, start_x, start_y, start_direction))
