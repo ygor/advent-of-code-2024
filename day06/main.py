@@ -43,7 +43,6 @@ def leave_area(
 
 
 def leave_or_loop_area(area: np.ndarray, x: int, y: int, direction: str) -> bool:
-    """Check if the starting position results in a loop."""
     visited = set()
     while 0 <= x < area.shape[1] and 0 <= y < area.shape[0]:
         state = (x, y, direction)
