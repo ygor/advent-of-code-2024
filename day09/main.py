@@ -29,26 +29,26 @@ def optimise_p1(memory: list[tuple[str, int]]) -> list[str]:
 
 
 def find_space(memory: list[tuple[str, int]], size: int, max_index: int) -> int:
-    empty = 0
-    while (memory[empty][0] != EMPTY or memory[empty][1] < size) and empty < max_index:
-        empty += 1
-    return empty
+    index = 0
+    while (memory[index][0] != EMPTY or memory[index][1] < size) and index < max_index:
+        index += 1
+    return index
 
 
 def move_file(
-    memory: list[tuple[str, int]], empty: int, index: int, id: str, size: int
+    memory: list[tuple[str, int]], to_index: int, from_index: int, id: str, size: int
 ) -> None:
-    memory[empty] = (EMPTY, memory[empty][1] - size)
-    memory[index] = (EMPTY, size)
-    memory.insert(empty, (id, size))
+    memory[to_index] = (EMPTY, memory[to_index][1] - size)
+    memory[from_index] = (EMPTY, size)
+    memory.insert(to_index, (id, size))
 
 
 def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
     index = len(memory) - 1
     while index >= 0:
         id, size = memory[index]
-        if id != EMPTY and (empty := find_space(memory, size, index)) < index:
-            move_file(memory, empty, index, id, size)
+        if id != EMPTY and (empty_index := find_space(memory, size, index)) < index:
+            move_file(memory, empty_index, index, id, size)
             index += 1
         index -= 1
     return decompress(memory)
