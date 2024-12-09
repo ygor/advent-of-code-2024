@@ -3,10 +3,10 @@ from itertools import chain, count
 
 
 def load_memory() -> list[tuple[str, int]]:
-    return list(
-        (index // 2, int(value)) if index % 2 == 0 else (".", int(value))
-        for index, value in enumerate(Path("input.txt").read_text())
-    )
+    return [
+        (str(i // 2) if i % 2 == 0 else ".", int(v))
+        for i, v in enumerate(Path("input.txt").read_text())
+    ]
 
 
 def memory_to_list(memory: list[tuple[str, int]]) -> list[str]:
@@ -45,9 +45,7 @@ def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
 
 
 def checksum(memory: list[str]) -> int:
-    return sum(
-        int(value) * index for value, index in zip(memory, count()) if value != "."
-    )
+    return sum(int(v) * i for i, v in enumerate(memory) if v != ".")
 
 
 print("Part 1:", checksum(optimise_p1(load_memory())))
