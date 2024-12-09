@@ -2,16 +2,19 @@ from pathlib import Path
 from itertools import chain, count
 
 
-def load_memory() -> list[str]:
+def load_memory() -> list[tuple[str, int]]:
     return list(
-        chain.from_iterable(
-            [index // 2] * int(value) if index % 2 == 0 else ["."] * int(value)
-            for index, value in enumerate(Path("input.txt").read_text())
-        )
+        (index // 2, int(value)) if index % 2 == 0 else (".", int(value))
+        for index, value in enumerate(Path("input.txt").read_text())
     )
 
 
-def optimise_p1(memory: list[str]) -> list[str]:
+def memory_to_list(memory: list[tuple[str, int]]) -> list[str]:
+    return list(chain.from_iterable([id] * size for id, size in memory if size > 0))
+
+
+def optimise_p1(memory: list[tuple[str, int]]) -> list[str]:
+    memory = memory_to_list(memory)
     empty = 0
     for i in range(len(memory) - 1, -1, -1):
         if memory[i] != ".":
@@ -20,13 +23,6 @@ def optimise_p1(memory: list[str]) -> list[str]:
             if empty < i:
                 memory[empty], memory[i] = memory[i], "."
     return memory
-
-
-def load_memory_p2() -> list[tuple[str, int]]:
-    return list(
-        (index // 2, int(value)) if index % 2 == 0 else (".", int(value))
-        for index, value in enumerate(Path("input.txt").read_text())
-    )
 
 
 def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
@@ -45,19 +41,14 @@ def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
                 memory.insert(empty, (id, size))
                 index += 1
         index -= 1
-
-    return list(
-        chain.from_iterable([id] * size for id, size in memory if size > 0)
-    )
+    return memory_to_list(memory)
 
 
 def checksum(memory: list[str]) -> int:
     return sum(
-        int(value) * index
-        for value, index in zip(memory, count())
-        if value != "."
+        int(value) * index for value, index in zip(memory, count()) if value != "."
     )
 
 
 print("Part 1:", checksum(optimise_p1(load_memory())))
-print("Part 2:", checksum(optimise_p2(load_memory_p2())))
+print("Part 2:", checksum(optimise_p2(load_memory())))
