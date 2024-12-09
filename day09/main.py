@@ -11,7 +11,7 @@ def load_memory() -> list[str]:
     )
 
 
-def optimise(memory: list[str]) -> list[str]:
+def optimise_p1(memory: list[str]) -> list[str]:
     empty = 0
     for i in range(len(memory) - 1, -1, -1):
         if memory[i] != ".":
@@ -30,8 +30,7 @@ def load_memory_p2() -> list[tuple[str, int]]:
 
 
 def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
-    empty = 0
-    index = len(memory) - 1
+    empty, index = 0, len(memory) - 1
     while index >= 0:
         id, size = memory[index]
         if id != ".":
@@ -41,8 +40,7 @@ def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
             ) and empty < index:
                 empty += 1
             if empty < index:
-                space = memory[empty][1]
-                memory[empty] = (".", space - size)
+                memory[empty] = (".", memory[empty][1] - size)
                 memory[index] = (".", size)
                 memory.insert(empty, (id, size))
                 index += 1
@@ -61,5 +59,5 @@ def checksum(memory: list[str]) -> int:
     )
 
 
-print("Part 1:", checksum(optimise(load_memory())))
+print("Part 1:", checksum(optimise_p1(load_memory())))
 print("Part 2:", checksum(optimise_p2(load_memory_p2())))
