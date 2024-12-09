@@ -1,10 +1,12 @@
 from pathlib import Path
 from itertools import chain
 
+EMPTY = "."
+
 
 def load_memory() -> list[tuple[str, int]]:
     return [
-        (str(i // 2) if i % 2 == 0 else ".", int(v))
+        (str(i // 2) if i % 2 == 0 else EMPTY, int(v))
         for i, v in enumerate(Path("input.txt").read_text())
     ]
 
@@ -14,21 +16,21 @@ def decompress(memory: list[tuple[str, int]]) -> list[str]:
 
 
 def find_next_empty(memory: list[str], start: int, end: int) -> int:
-    return next((i for i in range(start, end + 1) if memory[i] == "."), end)
+    return next((i for i in range(start, end + 1) if memory[i] == EMPTY), end)
 
 
 def optimise_p1(memory: list[tuple[str, int]]) -> list[str]:
     memory = decompress(memory)
     empty = 0
     for i in range(len(memory) - 1, -1, -1):
-        if memory[i] != "." and (empty := find_next_empty(memory, empty, i)) < i:
+        if memory[i] != EMPTY and (empty := find_next_empty(memory, empty, i)) < i:
             memory[empty], memory[i] = memory[i], memory[empty]
     return memory
 
 
 def find_space(memory: list[tuple[str, int]], size: int, max_index: int) -> int:
     empty = 0
-    while (memory[empty][0] != "." or memory[empty][1] < size) and empty < max_index:
+    while (memory[empty][0] != EMPTY or memory[empty][1] < size) and empty < max_index:
         empty += 1
     return empty
 
@@ -36,8 +38,8 @@ def find_space(memory: list[tuple[str, int]], size: int, max_index: int) -> int:
 def move_file(
     memory: list[tuple[str, int]], empty: int, index: int, id: str, size: int
 ) -> None:
-    memory[empty] = (".", memory[empty][1] - size)
-    memory[index] = (".", size)
+    memory[empty] = (EMPTY, memory[empty][1] - size)
+    memory[index] = (EMPTY, size)
     memory.insert(empty, (id, size))
 
 
@@ -45,7 +47,7 @@ def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
     index = len(memory) - 1
     while index >= 0:
         id, size = memory[index]
-        if id != "." and (empty := find_space(memory, size, index)) < index:
+        if id != EMPTY and (empty := find_space(memory, size, index)) < index:
             move_file(memory, empty, index, id, size)
             index += 1
         index -= 1
@@ -53,7 +55,7 @@ def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
 
 
 def checksum(memory: list[str]) -> int:
-    return sum(int(v) * i for i, v in enumerate(memory) if v != ".")
+    return sum(int(v) * i for i, v in enumerate(memory) if v != EMPTY)
 
 
 print("Part 1:", checksum(optimise_p1(load_memory())))
