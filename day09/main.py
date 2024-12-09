@@ -1,5 +1,5 @@
 from pathlib import Path
-from itertools import chain, count
+from itertools import chain
 
 
 def load_memory() -> list[tuple[str, int]]:
@@ -9,39 +9,47 @@ def load_memory() -> list[tuple[str, int]]:
     ]
 
 
-def memory_to_list(memory: list[tuple[str, int]]) -> list[str]:
+def decompress(memory: list[tuple[str, int]]) -> list[str]:
     return list(chain.from_iterable([id] * size for id, size in memory if size > 0))
 
 
+def find_next_empty(memory: list[str], start: int, end: int) -> int:
+    return next((i for i in range(start, end + 1) if memory[i] == "."), end)
+
+
 def optimise_p1(memory: list[tuple[str, int]]) -> list[str]:
-    memory = memory_to_list(memory)
+    memory = decompress(memory)
     empty = 0
     for i in range(len(memory) - 1, -1, -1):
-        if memory[i] != ".":
-            while memory[empty] != "." and empty < i:
-                empty += 1
-            if empty < i:
-                memory[empty], memory[i] = memory[i], "."
+        if memory[i] != "." and (empty := find_next_empty(memory, empty, i)) < i:
+            memory[empty], memory[i] = memory[i], memory[empty]
     return memory
 
 
+def find_space(memory: list[tuple[str, int]], size: int, max_index: int) -> int:
+    empty = 0
+    while (memory[empty][0] != "." or memory[empty][1] < size) and empty < max_index:
+        empty += 1
+    return empty
+
+
+def move_file(
+    memory: list[tuple[str, int]], empty: int, index: int, id: str, size: int
+) -> None:
+    memory[empty] = (".", memory[empty][1] - size)
+    memory[index] = (".", size)
+    memory.insert(empty, (id, size))
+
+
 def optimise_p2(memory: list[tuple[str, int]]) -> list[str]:
-    empty, index = 0, len(memory) - 1
+    index = len(memory) - 1
     while index >= 0:
         id, size = memory[index]
-        if id != ".":
-            empty = 0
-            while (
-                memory[empty][0] != "." or memory[empty][1] < size
-            ) and empty < index:
-                empty += 1
-            if empty < index:
-                memory[empty] = (".", memory[empty][1] - size)
-                memory[index] = (".", size)
-                memory.insert(empty, (id, size))
-                index += 1
+        if id != "." and (empty := find_space(memory, size, index)) < index:
+            move_file(memory, empty, index, id, size)
+            index += 1
         index -= 1
-    return memory_to_list(memory)
+    return decompress(memory)
 
 
 def checksum(memory: list[str]) -> int:
