@@ -29,11 +29,17 @@ def explore(heightmap: np.ndarray, trail: list[np.array]) -> list[list[np.array]
     ]
 
 
-def find_trails(heightmap: np.ndarray) -> list[list[np.array]]:
+def score_trails(heightmap: np.ndarray) -> list[list[np.array]]:
     return sum(
         len({tuple(trail[-1]) for trail in explore(heightmap, [th])})
         for th in trailheads(heightmap)
     )
 
+def rate_trails(heightmap: np.ndarray) -> list[list[np.array]]:
+    return sum(
+        len([trail for trail in explore(heightmap, [th])])
+        for th in trailheads(heightmap)
+    )
 
-print("Part 1:", find_trails(load_heightmap("input.txt")))
+print("Part 1:", score_trails(load_heightmap("input.txt")))
+print("Part 2:", rate_trails(load_heightmap("input.txt")))
