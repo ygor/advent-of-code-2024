@@ -16,20 +16,17 @@ def trailheads(heightmap: np.ndarray) -> list[np.array]:
 
 
 def explore(heightmap: np.ndarray, trail: list[np.array]) -> list[list[np.array]]:
-    results = []
-
     if heightmap[tuple(trail[-1])] == 9:
-        results.append(trail)
-    else:
-        for direction in DIRECTIONS:
-            next_position = trail[-1] + direction
-            if (
-                0 <= next_position[0] < heightmap.shape[0]
-                and 0 <= next_position[1] < heightmap.shape[1]
-                and heightmap[tuple(next_position)] == heightmap[tuple(trail[-1])] + 1
-            ):
-                results.extend(explore(heightmap, trail + [next_position]))
-    return results
+        return [trail]
+
+    return [
+        new_trail
+        for d in DIRECTIONS
+        if np.all((next_pos := trail[-1] + d) >= 0)
+        and np.all(next_pos < heightmap.shape)
+        and heightmap[tuple(next_pos)] == heightmap[tuple(trail[-1])] + 1
+        for new_trail in explore(heightmap, trail + [next_pos])
+    ]
 
 
 def find_trails(heightmap: np.ndarray) -> list[list[np.array]]:
