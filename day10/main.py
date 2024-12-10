@@ -1,5 +1,6 @@
 from pathlib import Path
 import numpy as np
+from typing import Callable
 
 DIRECTIONS = [np.array((1, 0)), np.array((-1, 0)), np.array((0, 1)), np.array((0, -1))]
 
@@ -29,17 +30,17 @@ def explore(heightmap: np.ndarray, trail: list[np.array]) -> list[list[np.array]
     ]
 
 
-def score_trails(heightmap: np.ndarray) -> list[list[np.array]]:
-    return sum(
-        len({tuple(trail[-1]) for trail in explore(heightmap, [th])})
-        for th in trailheads(heightmap)
-    )
+def process_trails(heightmap: np.ndarray, fn: Callable[[list[np.ndarray]], int]) -> int:
+    return sum(fn(explore(heightmap, [th])) for th in trailheads(heightmap))
 
-def rate_trails(heightmap: np.ndarray) -> list[list[np.array]]:
-    return sum(
-        len([trail for trail in explore(heightmap, [th])])
-        for th in trailheads(heightmap)
-    )
+
+def score_trails(heightmap: np.ndarray) -> int:
+    return process_trails(heightmap, lambda trails: len({tuple(trail[-1]) for trail in trails}))
+
+
+def rate_trails(heightmap: np.ndarray) -> int:
+    return process_trails(heightmap, lambda trails: len(trails))
+
 
 print("Part 1:", score_trails(load_heightmap("input.txt")))
 print("Part 2:", rate_trails(load_heightmap("input.txt")))
