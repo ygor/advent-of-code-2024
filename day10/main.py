@@ -6,44 +6,37 @@ DIRECTIONS = [np.array((1, 0)), np.array((-1, 0)), np.array((0, 1)), np.array((0
 
 def load_heightmap(file_path: str) -> np.ndarray:
     lines = Path(file_path).read_text().splitlines()
-    return np.array([list(map(int, line)) for line in lines])
+    return np.array(
+        [list(map(lambda x: -1 if x == "." else int(x), line)) for line in lines]
+    )
 
 
 def trailheads(heightmap: np.ndarray) -> list[np.array]:
     return [np.array(pos) for pos in np.argwhere(heightmap == 0)]
 
 
-def explore(
-    heightmap: np.ndarray, trail: list[np.array]
-) -> list[list[np.array]]:
+def explore(heightmap: np.ndarray, trail: list[np.array]) -> list[list[np.array]]:
     results = []
-    current_position = trail[-1]
 
-    if heightmap[tuple(current_position)] == 9:
+    if heightmap[tuple(trail[-1])] == 9:
         results.append(trail)
     else:
         for direction in DIRECTIONS:
-            next_position = current_position + direction
+            next_position = trail[-1] + direction
             if (
                 0 <= next_position[0] < heightmap.shape[0]
                 and 0 <= next_position[1] < heightmap.shape[1]
-                and heightmap[tuple(next_position)]
-                == heightmap[tuple(current_position)] + 1
+                and heightmap[tuple(next_position)] == heightmap[tuple(trail[-1])] + 1
             ):
                 results.extend(explore(heightmap, trail + [next_position]))
     return results
 
 
 def find_trails(heightmap: np.ndarray) -> list[list[np.array]]:
-    result = 0
-    for trailhead in trailheads(heightmap):
-        trails = explore(heightmap, [trailhead])
-        valid_trails = [trail for trail in trails if heightmap[tuple(trail[-1])] == 9]
-        result += len(valid_trails)
-    return result
+    return sum(
+        len({tuple(trail[-1]) for trail in explore(heightmap, [th])})
+        for th in trailheads(heightmap)
+    )
 
-
-heightmap = load_heightmap("input.txt")
-print (len(explore(heightmap, [trailheads(heightmap)[0]])))
 
 print("Part 1:", find_trails(load_heightmap("input.txt")))
