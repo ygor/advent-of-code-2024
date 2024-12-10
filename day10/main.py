@@ -38,8 +38,12 @@ def find_trails(heightmap: np.ndarray) -> list[list[np.array]]:
     result = 0
     for trailhead in trailheads(heightmap):
         trails = explore(heightmap, [trailhead])
-        result += len(trails)
+        valid_trails = [trail for trail in trails if heightmap[tuple(trail[-1])] == 9]
+        result += len(valid_trails)
     return result
 
+
+heightmap = load_heightmap("input.txt")
+print (len(explore(heightmap, [trailheads(heightmap)[0]])))
 
 print("Part 1:", find_trails(load_heightmap("input.txt")))
