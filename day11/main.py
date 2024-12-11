@@ -1,29 +1,28 @@
 from pathlib import Path
-from math import floor, log10
+from collections import defaultdict, Counter
 
 
-def stones() -> list[int]:
-    return [int(stone) for stone in Path("input.txt").read_text().split()]
+def stones() -> dict[int, int]:
+    numbers = map(int, Path("input.txt").read_text().split())
+    return dict(Counter(numbers))
 
 
-def change(stone: int, times: int) -> list[int]:
-    if times == 0:
-        return [stone]
-    if stone == 0:
-        return change(1, times - 1)
-
-    num_digits = floor(log10(stone)) + 1
-    if num_digits % 2 == 0:
-        mid = num_digits // 2
-        divisor = 10**mid
-        return change(stone // divisor, times - 1) + change(stone % divisor, times - 1)
-
-    return change(stone * 2024, times - 1)
-
-
-def blink(stones: list[int], times: int) -> list[int]:
-    return [item for stone in stones for item in change(stone, times)]
+def evolve(stones: dict[int, int], count):
+    for _ in range(count):
+        new_stones = defaultdict(int)
+        for value, freq in stones.items():
+            if value == 0:
+                new_stones[1] += freq
+            elif len(str(value)) % 2 == 0:
+                s = str(value)
+                mid = len(s) // 2
+                new_stones[int(s[:mid])] += freq
+                new_stones[int(s[mid:])] += freq                
+            else:
+                new_stones[value * 2024] += freq
+        stones = new_stones
+    return sum(stones.values())
 
 
-print("Part 1:", len(blink(stones(), 25)))
-print("Part 2:", len(blink(stones(), 75)))
+print("Part 1:", evolve(stones(), 25))
+print("Part 2:", evolve(stones(), 75))
