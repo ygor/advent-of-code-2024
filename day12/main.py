@@ -23,6 +23,7 @@ def regions(
     for plant, positions in plants.items():
         regions[plant] = []
         unvisited = positions.copy()
+
         while unvisited:
             region = set()
             stack = [unvisited.pop()]
@@ -30,12 +31,9 @@ def regions(
             while stack:
                 pos = stack.pop()
                 region.add(pos)
-
-                for d in DIRECTIONS:
-                    neighbor = tuple(np.array(pos) + d)
-                    if neighbor in unvisited:
-                        unvisited.remove(neighbor)
-                        stack.append(neighbor)
+                neighbors = {tuple(np.array(pos) + d) for d in DIRECTIONS} & unvisited
+                unvisited -= neighbors
+                stack.extend(neighbors)
 
             regions[plant].append(region)
     return regions
@@ -48,20 +46,14 @@ def measures(
         plant: [
             (
                 sum(
-                    len(
-                        [
-                            d
-                            for d in DIRECTIONS
-                            if tuple(np.array(pos) + d) not in region
-                        ]
-                    )
+                    sum(tuple(np.array(pos) + d) not in region for d in DIRECTIONS)
                     for pos in region
                 ),
                 len(region),
             )
             for region in regions[plant]
         ]
-        for plant in regions.keys()
+        for plant in regions
     }
 
 
