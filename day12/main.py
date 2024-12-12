@@ -64,15 +64,14 @@ def measures(
         for plant in regions.keys()
     }
 
+
 def price(measures: dict[str, list[tuple[int, int]]]) -> int:
     return sum(
         (
-            sum(
-                region[0] * region[1]
-                for region in measures[plant]
-            )
+            sum(region[0] * region[1] for region in measures[plant])
             for plant in measures.keys()
         )
     )
+
 
 print("Part 1:", price(measures(regions(plants(garden_plot("input.txt"))))))
