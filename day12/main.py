@@ -9,24 +9,70 @@ def garden_plot(file_path: str) -> np.ndarray:
     return np.array([list(plants) for plants in lines])
 
 
-def regions(garden_plot: np.ndarray) -> dict[str, set[tuple[int, int]]]:
+def plants(garden_plot: np.ndarray) -> dict[str, set[tuple[int, int]]]:
     return {
         plant: set(map(tuple, np.argwhere(garden_plot == plant)))
         for plant in np.unique(garden_plot)
     }
 
 
-def measures(regions: dict[str, set[tuple[int, int]]]) -> dict[str, tuple[int, int]]:
+def regions(
+    plants: dict[str, set[tuple[int, int]]],
+) -> dict[str, list[set[tuple[int, int]]]]:
+    regions = {}
+    for plant, positions in plants.items():
+        regions[plant] = []
+        unvisited = positions.copy()
+        while unvisited:
+            region = set()
+            stack = [unvisited.pop()]
+
+            while stack:
+                pos = stack.pop()
+                region.add(pos)
+
+                for d in DIRECTIONS:
+                    neighbor = tuple(np.array(pos) + d)
+                    if neighbor in unvisited:
+                        unvisited.remove(neighbor)
+                        stack.append(neighbor)
+
+            regions[plant].append(region)
+    return regions
+
+
+def measures(
+    regions: dict[str, list[set[tuple[int, int]]]],
+) -> dict[str, list[tuple[int, int]]]:
     return {
-        plant: (
-            sum(
-                len([d for d in DIRECTIONS if tuple(np.array(pos) + d) not in region])
-                for pos in region
-            ),
-            len(region),
-        )
-        for plant, region in regions.items()
+        plant: [
+            (
+                sum(
+                    len(
+                        [
+                            d
+                            for d in DIRECTIONS
+                            if tuple(np.array(pos) + d) not in region
+                        ]
+                    )
+                    for pos in region
+                ),
+                len(region),
+            )
+            for region in regions[plant]
+        ]
+        for plant in regions.keys()
     }
 
+def price(measures: dict[str, list[tuple[int, int]]]) -> int:
+    return sum(
+        (
+            sum(
+                region[0] * region[1]
+                for region in measures[plant]
+            )
+            for plant in measures.keys()
+        )
+    )
 
-print("Part 1:", measures(regions(garden_plot("input.txt"))))
+print("Part 1:", price(measures(regions(plants(garden_plot("input.txt"))))))
