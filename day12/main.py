@@ -1,5 +1,6 @@
 from pathlib import Path
 import numpy as np
+from typing import Callable
 
 DIRECTIONS = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
 
@@ -39,31 +40,33 @@ def regions(
     return regions
 
 
+def perimeter(region: set[tuple[int, int]]) -> list[tuple[int, int]]:
+    return [
+        tuple(np.array(pos) + d)
+        for d in DIRECTIONS
+        for pos in region
+        if tuple(np.array(pos) + d) not in region
+    ]
+
+
 def measures(
     regions: dict[str, list[set[tuple[int, int]]]],
-) -> dict[str, list[tuple[int, int]]]:
+    priceFn: Callable[[list[tuple[int, int]], int], int],
+) -> dict[str, int]:
     return {
-        plant: [
-            (
-                sum(
-                    sum(tuple(np.array(pos) + d) not in region for d in DIRECTIONS)
-                    for pos in region
-                ),
-                len(region),
-            )
-            for region in regions[plant]
-        ]
+        plant: sum(
+            [priceFn(perimeter(region), len(region)) for region in regions[plant]]
+        )
         for plant in regions
     }
 
 
-def price(measures: dict[str, list[tuple[int, int]]]) -> int:
-    return sum(
-        (
-            sum(region[0] * region[1] for region in measures[plant])
-            for plant in measures.keys()
-        )
-    )
-
-
-print("Part 1:", price(measures(regions(plants(garden_plot("input.txt"))))))
+print(
+    "Part 1:",
+    sum(
+        measures(
+            regions(plants(garden_plot("input.txt"))),
+            lambda perimeter, length: len(perimeter) * length,
+        ).values()
+    ),
+)
