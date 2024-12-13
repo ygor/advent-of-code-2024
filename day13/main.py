@@ -1,6 +1,7 @@
 from pathlib import Path
-import math
+import numpy as np
 import re
+
 
 def claw_machines(input: str) -> list[list[tuple[int, int]]]:
     regex_button = re.compile(r"Button [AB]: X\+(\d+), Y\+(\d+)")
@@ -18,18 +19,14 @@ def claw_machines(input: str) -> list[list[tuple[int, int]]]:
 
 
 def costs(machine: list[tuple[int, int]]) -> int:
-    (a_x, a_y), (b_x, b_y), (p_x, p_y) = machine
+    A = np.column_stack([np.array(machine[0]), np.array(machine[1])])
+    presses = np.linalg.solve(A, np.array(machine[2]))
 
-    det_A = a_x * b_y - a_y * b_x
-    if det_A == 0:
-        return 0
-    presses_a = (b_y * p_x - b_x * p_y) / det_A
-    presses_b = (a_x * p_y - a_y * p_x) / det_A
-
-    if presses_a.is_integer() and presses_b.is_integer() and presses_a > 0 and presses_b > 0:
-        return presses_a * 3 + presses_b
-    else:
-        return 0
+    return (
+        round(presses[0]) * 3 + round(presses[1])
+        if np.all(presses > 0) and np.all(np.isclose(np.round(presses), presses))
+        else 0
+    )
 
 
 print(
