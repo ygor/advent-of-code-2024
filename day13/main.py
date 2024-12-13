@@ -18,11 +18,9 @@ def claw_machines() -> list[list[tuple[int, int]]]:
     ]
 
 
-def costs(machine: list[tuple[int, int]], conversion=0) -> int:
+def costs(machine: list[tuple[int, int]], conv=0) -> int:
     A = np.column_stack([np.array(machine[0]), np.array(machine[1])])
-    presses = np.linalg.solve(
-        A, np.array(machine[2]) + np.array([conversion, conversion])
-    )
+    presses = np.linalg.solve(A, np.array(machine[2]) + np.array([conv, conv]))
 
     return (
         round(presses[0]) * 3 + round(presses[1])
